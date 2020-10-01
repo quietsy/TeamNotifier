@@ -1,0 +1,67 @@
+﻿<UserControl
+    x:Class="TeamNotifier.Balloon"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:TeamNotifier"
+    Height="45"
+    Width="300"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="me">
+    <UserControl.Resources>
+        <Storyboard
+            x:Key="FadeInAndOut">
+            <DoubleAnimationUsingKeyFrames
+                BeginTime="00:00:00"
+                Storyboard.TargetName="grid"
+                Storyboard.TargetProperty="(UIElement.Opacity)">
+                <SplineDoubleKeyFrame
+                    KeyTime="00:00:00"
+                    Value="0" />
+                <SplineDoubleKeyFrame
+                    KeyTime="00:00:01"
+                    Value="0.895" />
+                <SplineDoubleKeyFrame
+                    KeyTime="00:00:10"
+                    Value="0.895" />
+                <SplineDoubleKeyFrame
+                    KeyTime="00:00:11.6000000"
+                    Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </UserControl.Resources>
+    <UserControl.Triggers>
+        <EventTrigger
+            RoutedEvent="local:TaskbarIcon.BalloonShowing">
+            <BeginStoryboard
+                Storyboard="{StaticResource FadeInAndOut}"
+                x:Name="FadeInAndOut_BeginStoryboard" />
+        </EventTrigger>
+    </UserControl.Triggers>
+    <Grid
+        x:Name="grid">
+
+        <Border
+            x:Name="border"
+            CornerRadius="10,10,10,10"
+            BorderBrush="black" BorderThickness="1"
+            Margin="0,0,5,5">
+            <Border.Background>
+                <SolidColorBrush Color="WhiteSmoke" Opacity="0.9" />
+            </Border.Background>
+            <Border.Effect>
+                <DropShadowEffect />
+            </Border.Effect>
+        </Border>
+        <TextBlock
+            Margin="10,10,15,0"
+            VerticalAlignment="Top"
+            FontSize="14"
+            FontWeight="Bold"
+            TextWrapping="Wrap"
+            HorizontalAlignment="Center">
+            <Run Text="Team Notifier is minimized to tray!"/>
+        </TextBlock>
+    </Grid>
+</UserControl>

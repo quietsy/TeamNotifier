@@ -1,0 +1,161 @@
+﻿<UserControl x:Class="TeamNotifier.Views.CommandControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:nsvi="clr-namespace:TeamNotifier.Views"
+             xmlns:nsvm="clr-namespace:TeamNotifier.ViewModels"
+             xmlns:nsm="clr-namespace:TeamNotifier.Models"
+             xmlns:ns="clr-namespace:TeamNotifier"
+             xmlns:s="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" Height="27">
+    <UserControl.Resources>
+        <nsvi:DelayConverter x:Key="DelayConverter"/>
+        
+        <ObjectDataProvider x:Key="MessageColors" MethodName="GetValues"
+                            ObjectType="{x:Type s:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="nsm:MessageColors"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="9*"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Label Content="{Binding Model.CommandNumber}" ContentStringFormat="Command {0}" Grid.Column="0" />
+        <TextBox Text="{Binding Model.Hotkey}" ToolTipService.ShowOnDisabled="True" HorizontalContentAlignment="Center"
+                 PreviewKeyDown="Hotkey_PreviewKeyDown" GotFocus="HotkeyTextBox_GotFocus" LostFocus="HotkeyTextBox_LostFocus" x:Name="HotkeyTextBox" Grid.Column="1" Margin="2,2,2,2">
+            <TextBox.Style>
+                <Style TargetType="{x:Type TextBox}">
+                    <Setter Property="ToolTip" Value="Select a hotkey to trigger the command." />
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding DataContext.Model.Room, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type nsvi:TeamNotifierControl}}}" Value="" />
+                                <Condition Binding="{Binding Model.IsLocal}" Value="False" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="TextBox.IsEnabled" Value="False"/>
+                            <Setter Property="TextBox.ToolTip" Value="Type a Room to enable non-local commands."/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
+        <TextBox Text="{Binding Model.Message}" ToolTipService.ShowOnDisabled="True" HorizontalContentAlignment="Left" 
+                 Grid.Column="2" Margin="2,2,2,2" MaxLength="40" GotFocus="HotkeyTextBox_GotFocus" LostFocus="HotkeyTextBox_LostFocus">
+            <TextBox.Style>
+                <Style TargetType="{x:Type TextBox}">
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding DataContext.Model.Room, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type nsvi:TeamNotifierControl}}}" Value="" />
+                                <Condition Binding="{Binding Model.IsLocal}" Value="False" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="TextBox.IsEnabled" Value="False"/>
+                            <Setter Property="TextBox.ToolTip" Value="Type a Room to enable non-local commands."/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+            <TextBox.Background>
+                <LinearGradientBrush ColorInterpolationMode="ScRgbLinearInterpolation" Opacity="0.8"  StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="White" Offset="0" />
+                    <GradientStop Color="White" Offset="0.5" />
+                    <GradientStop Color="{Binding ElementName=ColorComboBox, FallbackValue=White, Path=Text}" Offset="1" />
+                </LinearGradientBrush>
+
+            </TextBox.Background>
+        </TextBox>
+        <ComboBox x:Name="ColorComboBox" SelectedValue="{Binding Model.MessageColor}" ToolTipService.ShowOnDisabled="True" Grid.Column="3" Text="White"
+                  Margin="2,2,2,2" ItemsSource="{Binding Source={StaticResource MessageColors}}">
+            <ComboBox.Style>
+                <Style TargetType="{x:Type ComboBox}">
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding DataContext.Model.Room, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type nsvi:TeamNotifierControl}}}" Value="" />
+                                <Condition Binding="{Binding Model.IsLocal}" Value="False" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="ComboBox.IsEnabled" Value="False"/>
+                            <Setter Property="ComboBox.ToolTip" Value="Type a Room to enable non-local commands."/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ComboBox.Style>
+        </ComboBox>
+
+        <CheckBox ToolTipService.ShowDuration="10000" ToolTip="Local messages will only be seen by you, non-local &#x0a;messages will be seen by users with the same Room." 
+                  IsChecked="{Binding Model.IsLocal}" VerticalAlignment="Center" 
+                  HorizontalAlignment="Center" Grid.Column="4"/>
+
+        <ns:MaskedTextBox x:Name="_maskedTextBox" Text="{Binding Model.TimeReminder}" 
+                          HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                             Mask="00:00:00" Grid.Column="5" Margin="2" ToolTipService.ShowOnDisabled="True"
+                             ValueDataType="{x:Type s:String}" KeyDown="TimeReminderKeyDown" GotFocus="TimeReminderGotFocus" LostKeyboardFocus="TimeReminderLostFocus">
+            <TextBox.Style>
+                <Style TargetType="{x:Type TextBox}">
+                    <Setter Property="ToolTip" Value="The local message will be sent after a delay." />
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding DataContext.Model.Room, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type nsvi:TeamNotifierControl}}}" Value="" />
+                                <Condition Binding="{Binding Model.IsLocal}" Value="False" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="TextBox.IsEnabled" Value="False"/>
+                            <Setter Property="TextBox.ToolTip" Value="Type a Room to enable non-local commands."/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </ns:MaskedTextBox>
+
+        <CheckBox ToolTipService.ShowDuration="10000"
+                  ToolTip="Single will show the remaining time when pressing the hotkey again."  ToolTipService.ShowOnDisabled="True"
+                  IsChecked="{Binding Model.IsSingle}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="6">
+            <CheckBox.Style>
+                <Style TargetType="{x:Type CheckBox}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Model.TimeReminder, Converter={StaticResource DelayConverter}}" Value="False">
+                            <Setter Property="CheckBox.IsEnabled" Value="False"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Model.IsRepeat}" Value="True">
+                            <Setter Property="CheckBox.IsEnabled" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </CheckBox.Style>
+        </CheckBox>
+
+        <CheckBox  ToolTipService.ShowOnDisabled="True"
+                  IsChecked="{Binding Model.IsRepeat}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="7">
+            <CheckBox.Style>
+                <Style TargetType="{x:Type CheckBox}">
+                    <Setter Property="ToolTip" Value="Single will show the remaining time when pressing the hotkey again." />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Model.TimeReminder, Converter={StaticResource DelayConverter}}" Value="False">
+                            <Setter Property="CheckBox.IsEnabled" Value="False"/>
+                            <Setter Property="CheckBox.ToolTip" Value="Only delayed local commands can be repeated."/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Model.IsLocal}" Value="False">
+                            <Setter Property="CheckBox.IsEnabled" Value="False"/>
+                            <Setter Property="CheckBox.ToolTip" Value="Only delayed local commands can be repeated."/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </CheckBox.Style>
+        </CheckBox>
+
+        <Button ToolTip="Delete the command." Grid.Column="8" Background="Transparent" BorderThickness="0" Width="23" Height="23" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding Path=DeleteCommand}" CommandParameter="{Binding Path=Model.CommandNumber}">
+            <Path Data="M0.0,5 L5.0,0 M5,5.0 L0,0.0" StrokeThickness="5" Stretch="Fill" Stroke="Red" />
+        </Button>
+    </Grid>
+</UserControl>

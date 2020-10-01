@@ -1,0 +1,174 @@
+﻿<UserControl x:Class="TeamNotifier.Views.TeamNotifierControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:nsvi="clr-namespace:TeamNotifier.Views"
+             xmlns:nsvm="clr-namespace:TeamNotifier.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="415" d:DesignWidth="800" MouseDown="Window_MouseDown">
+    <UserControl.DataContext>
+        <nsvm:TeamNotifierViewModel/>
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <Style TargetType="Label">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Background" Value="Black"/>
+        </Style>
+        <nsvi:PathToFilenameConverter x:Key="PathToFilenameConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Label Content="Team Notifier" Margin="8" FontSize="30" VerticalAlignment="Top"/>
+        <Label HorizontalAlignment="Right" Margin="0,25,10,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="14">
+            <Label.Style>
+                <Style TargetType="{x:Type Label}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=IsServerConnected}" Value="True">
+                            <Setter Property="Label.Content" Value="Connected" />
+                            <Setter Property="Label.Foreground" Value="Green" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=IsServerConnected}" Value="False">
+                            <Setter Property="Label.Content" Value="Connecting..." />
+                            <Setter Property="Label.Foreground" Value="Red" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=Model.Room}" Value="">
+                            <Setter Property="Label.Content" Value="Offline Mode" />
+                            <Setter Property="Label.Foreground" Value="Black" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+        <Label HorizontalAlignment="Right" Margin="0,40,10,0" VerticalAlignment="Top" FontSize="12">
+            <Label.Style>
+                <Style TargetType="{x:Type Label}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=Model.Room}" Value="">
+                            <Setter Property="Label.Content" Value="Type a room to connect" />
+                            <Setter Property="Label.Foreground" Value="Black" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+        <Grid Margin="11,30,0,0">
+            <Label Content="Profile" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <ComboBox x:Name="ProfilesComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="80" Margin="52,3,0,0" 
+                      SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
+                      SelectedValuePath="Name"  
+                      SelectedValue="{Binding SelectedProfile.Name}" ItemsSource="{Binding Profiles}" IsSynchronizedWithCurrentItem="True" />
+            <Button ToolTip="Add a new profile." Margin="138,4,0,0" Width="20" Height="20" HorizontalAlignment="Left" 
+                    VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Command="{Binding Path=AddNewProfile}">
+                <Path Data="M0.5,0 L0.5,1 M0,0.5 L1,0.5" StrokeThickness="4" Stretch="Fill" Stroke="Green" />
+            </Button>
+            <Button ToolTip="Delete the profile." Margin="158,5,0,0" Width="18" Height="18" HorizontalAlignment="Left" 
+                    VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Command="{Binding Path=DeleteProfile}">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Profiles.Count}" Value="1">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <Path Data="M0.0,5 L5.0,0 M5,5.0 L0,0.0" StrokeThickness="4" Stretch="Fill" Stroke="Red" />
+            </Button>
+        </Grid>
+        <Grid Background="Transparent" HorizontalAlignment="Stretch" Margin="180,80,180,280">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Label Content="User" Grid.Column="0" Grid.Row="0"/>
+            <TextBox Text="{Binding Model.User}"  Grid.Column="1" Grid.Row="0" Margin="2" MaxLength="10"/>
+            <Label Content="Room" Grid.Column="0" Grid.Row="1"/>
+            <TextBox x:Name="RoomTextBox" Text="{Binding Model.Room}" ToolTip="Non-local messages will be seen by users with the same Room." Grid.Column="1" Grid.Row="1" Margin="2"  MaxLength="10"/>
+            <Label Content="Auto Delete" Grid.Column="2" Grid.Row="0"/>
+            <Grid  Grid.Column="3" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="12*" />
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Model.AutoDelete}" ToolTip="Auto delete messages after # seconds." PreviewTextInput="NumberValidation" Grid.Column="0" Grid.Row="0" Margin="2"  MaxLength="10"/>
+                <Label Content="Seconds" HorizontalAlignment="Left" FontWeight="Regular" Grid.Column="1" Grid.Row="0" />
+            </Grid>
+            <Label Content="Max Messages" Grid.Column="2" Grid.Row="1"/>
+            <TextBox Text="{Binding Model.MaxMessages}" ToolTip="Maximum number of messages displayed." HorizontalAlignment="Left" Width="30" PreviewTextInput="NumberValidation" Grid.Column="3" Grid.Row="1" Margin="2" />
+            <Label Content="Play Sound" Grid.Column="0" Grid.Row="2"/>
+            <ComboBox SelectedValue="{Binding Model.SoundNotificationType}" Grid.Column="1" Grid.Row="2" Margin="2" ItemsSource="{Binding SoundNotificationTypes}"/>
+            <Label Content="Scheduled Events" Grid.Column="2" Grid.Row="2"/>
+            <Grid  Grid.Column="3" Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <TextBox IsReadOnly="True" PreviewMouseUp="ScheduledNotificationsTextboxMouseLeftButtonUp" 
+                         ToolTip="A file containing recurring local notification based on a schedule."
+                         IsEnabled="{Binding ElementName=IsScheduledNotificationsEnabledCheckBox, Path=IsChecked}" 
+                         Grid.Column="0" Grid.Row="0" Margin="2"  MaxLength="10" 
+                         Text="{Binding Model.ScheduledNotificationsFile, Mode=OneWay, Converter={StaticResource PathToFilenameConverter}}"/>
+                <CheckBox  Grid.Column="1" Grid.Row="0" x:Name="IsScheduledNotificationsEnabledCheckBox" IsChecked="{Binding Model.IsScheduledNotificationsEnabled}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Grid>
+        </Grid>
+        <Label Content="{Binding NextTaskDescription}" Foreground="DarkBlue" Margin="0,0,0,46" />
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Width="760" Height="170" Margin="10,206,10,20">
+            <StackPanel Width="740">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4*"/>
+                        <ColumnDefinition Width="4*"/>
+                        <ColumnDefinition Width="9*"/>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Hotkey" Grid.Column="1"/>
+                    <Label Content="Message" Grid.Column="2"/>
+                    <Label Content="Color" Grid.Column="3"/>
+                    <Label Content="Local" Grid.Column="4"/>
+                    <Label Content="Delay" Grid.Column="5"/>
+                    <Label Content="Single" Grid.Column="6"/>
+                    <Label Content="Repeat" Grid.Column="7"/>
+                </Grid>
+                <ItemsControl ItemsSource="{Binding Commands}" >
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <nsvi:CommandControl />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </StackPanel>
+        </ScrollViewer>
+        <Button ToolTip="Add a new command." Margin="0,0,0,10" Width="30" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" Command="{Binding Path=AddNewCommand}">
+            <Path Data="M0.5,0 L0.5,1 M0,0.5 L1,0.5" StrokeThickness="5" Stretch="Fill" Stroke="Green" />
+        </Button>
+
+    </Grid>
+    
+</UserControl>
